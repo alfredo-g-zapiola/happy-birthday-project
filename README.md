@@ -1,10 +1,10 @@
 # weekly_ore_email
 
-lambda function for sending the hourly report, accessing spreadheet and sendimg mail with google API and credentials
-
+Happy Birthday Project
 ## About
 
-This project has been set up using cookie cutter to pre-format the structure of this project. A sample Lambda has been created that takes in a dictionary with an input called "value" and returns the squared value. This project has the following project structure:
+Cloud infrastructure to send automatic happy birthay emails on AWS:
+
 
 Project structure:
 
