@@ -1,4 +1,4 @@
-# weekly_ore_email
+# Happy_birthday_project
 
 Happy Birthday Project
 ## About
