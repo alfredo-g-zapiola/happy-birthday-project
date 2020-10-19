@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    Buon_compleanno_project
+
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+    Function:
+        Timeout: 10
+Parameters:
+  EnvStageName:
+    Default: dev
+    Description: env name
+    Type: String
+  Region:
+    Default: us-east-1
+    Description: region
+    Type: String
+
+Resources:
+
+    BuonCompleannoLambda:
+        Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+        Properties:
+            FunctionName:
+              Fn::Sub: "${AWS::StackName}-${EnvStageName}"
+            CodeUri: weekly_ore_email/
+            Handler: weekly_ore_email.lambda_handler
+            Runtime: python3.7
+            Environment: #s More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+                Variables:
+                    DefaultSender: "agimenezzapiola@gmail.com"
+    InvokeBirthdayReportRule:
+        Type: AWS::Events::Rule
+        Properties:
+            Description: "frequency at which the lambda is invoked"
+            ScheduleExpression: cron(00 15 ? * MON *)
+            State: "ENABLED"
+            Targets:
+              -
+                Arn:
+                  Fn::GetAtt:
+                    - BuonCompleannoLambda
+                    - "Arn"
+                Id: "BuonCompleannoLambda"
+
+    LambdaInvokePermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+          FunctionName: !Ref BuonCompleannoLambda
+          Action: lambda:InvokeFunction
+          Principal: events.amazonaws.com
+          SourceArn:
+            Fn::GetAtt:
+              - "InvokeBirthdayReportRule"
+              - "Arn"
+
+    CompleanniTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          KeySchema:
+            -
+              AttributeName: "BDAY_MONTH"
+              KeyType: "HASH" # Partition Key
+            -
+              AttributeName: "Name"
+              KeyType: "RANGE" # sort key
+          AttributeDefinitions:
+            -
+              AttributeName: "Name"
+              AttributeType: S
+            -
+              AttributeName: "BDAY_MONTH"
+              AttributeType: N
+
+          TableName: Compleanni
+          BillingMode: "PROVISIONED"  # free-tier
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+
+
+Outputs:
+
+    BuonCompleannoLambda:
+      Description: "BuonCompleannoLambda Function ARN"
+      Value: !GetAtt BuonCompleannoLambda.Arn
