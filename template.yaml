@@ -35,7 +35,7 @@ Resources:
         Type: AWS::Events::Rule
         Properties:
             Description: "frequency at which the lambda is invoked"
-            ScheduleExpression: cron(00 15 ? * MON *)
+            ScheduleExpression: cron(00 15 * * ? *)
             State: "ENABLED"
             Targets:
               -
